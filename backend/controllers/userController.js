@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import generateTokenAndSetCookie from "../util/helpers/generateTokenAndSetCookie.js";
 
 const signupUser = async (req, res) => {
   try {
@@ -28,6 +29,8 @@ const signupUser = async (req, res) => {
 
     // check using response if newUser is in db or not
     if (newUser) {
+      generateTokenAndSetCookie(newUser._id, res);
+
       res.status(201).json({
         _id: newUser._id,
         name: newUser.name,
