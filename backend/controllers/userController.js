@@ -90,4 +90,20 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { signupUser, loginUser };
+// Logout User - not async because just clearing the cookies
+const logoutUser = (req, res) => {
+  try {
+    // "cookie" method is used to set a cookie in the client's browser.
+    // "jwt" - This is the name of the cookie.
+    // "" - Setting the value to an empty string is often a way to clear or delete the cookie.
+    // "maxAge: 1" means that the cookie will expire 1 millisecond after being set. Clears the cookie in 1ms.
+    res.cookie("jwt", "", { maxAgge: 1 });
+
+    res.status(200).json({ message: "User logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in login user: ", error.message);
+  }
+};
+
+export { signupUser, loginUser, logoutUser };
