@@ -6,6 +6,8 @@ import generateTokenAndSetCookie from "../util/helpers/generateTokenAndSetCookie
 const signupUser = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
+
+    // Find user with email or username
     const user = await User.findOne({ $or: [{ email }, { username }] });
 
     //
@@ -30,6 +32,7 @@ const signupUser = async (req, res) => {
 
     // check using response if newUser is in db or not
     if (newUser) {
+      // generating the cookie
       generateTokenAndSetCookie(newUser._id, res);
 
       //sending the response
@@ -54,9 +57,14 @@ const signupUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    //Find user with username
     const user = await User.findOne({ username });
 
-    // check if password is correct
+    // check if password is correct -
+    // bcrypt will compare the "password" with the "hashed password"
+    // The plain text password entered by the user while login (password).
+    // The hashed password stored in the database (user?.password).
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user?.password || ""
@@ -66,6 +74,7 @@ const loginUser = async (req, res) => {
     if (!user || !isPasswordCorrect)
       return res.status(400).json({ error: "Invalid username & password" });
 
+    // generating the cookie
     generateTokenAndSetCookie(user._id, res);
 
     //sending the response
