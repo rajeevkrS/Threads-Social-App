@@ -65,4 +65,32 @@ const getPost = async (req, res) => {
   }
 };
 
-export { getPost, createPost };
+// Delete Post API
+const deletePost = async (req, res) => {
+  try {
+    //Find the post using the post id
+    const post = await Post.findById(req.params.id);
+
+    // if not exists
+    if (!post) {
+      return res.status(404).json({ message: "Post not found!" });
+    }
+
+    // delete post only by the owner of that post
+    if (post.postedBy.toString() != req.user._id.toString()) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized to delete the post!" });
+    }
+
+    // after above checks, removing from the DB
+    await Post.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Post deleted successfully!" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in deleting a post: ", error.message);
+  }
+};
+
+export { createPost, getPost, deletePost };
