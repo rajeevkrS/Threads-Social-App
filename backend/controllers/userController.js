@@ -72,7 +72,7 @@ const loginUser = async (req, res) => {
 
     // check if user or password is valid
     if (!user || !isPasswordCorrect)
-      return res.status(400).json({ error: "Invalid username & password" });
+      return res.status(400).json({ error: "Invalid username & password!" });
 
     // generating the cookie
     generateTokenAndSetCookie(user._id, res);
@@ -99,11 +99,54 @@ const logoutUser = (req, res) => {
     // "maxAge: 1" means that the cookie will expire 1 millisecond after being set. Clears the cookie in 1ms.
     res.cookie("jwt", "", { maxAgge: 1 });
 
-    res.status(200).json({ message: "User logged out successfully" });
+    res.status(200).json({ message: "User logged out successfully!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
-    console.log("Error in login user: ", error.message);
+    console.log("Error in logout user: ", error.message);
   }
 };
 
-export { signupUser, loginUser, logoutUser };
+const followUnfollowUser = async (req, res) => {
+  try {
+    // /user/follow:id, the value of id will be available in req.params
+    const { id } = req.params;
+
+    // Find user by id to follow / unfollow
+    const userToModify = await User.findById(id);
+
+    // getting user id from req object from protectRoute middleware func.
+    const currentUser = await User.findById(req.user._id);
+
+    // check if user trying to follow himself
+    if (id == req.user._id) {
+      return res
+        .status(400)
+        .json({ message: "You cannot follow/unfollow yourself!" });
+    }
+
+    // if userToModify or currentUser not found by which user can follow / unfollow other user
+    if (!userToModify || !currentUser) {
+      return res.status(400).json({ error: "User not found!" });
+    }
+
+    // check if id is present using includes() method in the currentUser.following array.
+    const isFollowing = currentUser.following.includes(id);
+
+    if (isFollowing) {
+      // Unfollow user- when unfollow any user, removing that user by its id from the current user's following array and removing the current user's id from that unfollowed user's followers array in the same time.
+      await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
+      await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
+      res.status(200).json({ message: "User unfollowed successfully!" });
+    } else {
+      // Follow user- ...vice-versa (instead of pull(remove), going to push)
+      await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
+      await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
+      res.status(200).json({ message: "User followed successfully!" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in follow / unfollow user: ", error.message);
+  }
+};
+
+export { signupUser, loginUser, logoutUser, followUnfollowUser };
