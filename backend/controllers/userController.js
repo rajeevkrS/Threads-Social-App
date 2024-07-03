@@ -81,7 +81,7 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       _id: user._id,
       name: user.name,
-      email: user.name,
+      email: user.email,
       username: user.username,
     });
   } catch (error) {
@@ -106,6 +106,7 @@ const logoutUser = (req, res) => {
   }
 };
 
+// Follow / Unfollow user
 const followUnfollowUser = async (req, res) => {
   try {
     // /user/follow:id, the value of id will be available in req.params
@@ -118,7 +119,7 @@ const followUnfollowUser = async (req, res) => {
     const currentUser = await User.findById(req.user._id);
 
     // check if user trying to follow himself
-    if (id == req.user._id) {
+    if (id == req.user._id.toString()) {
       return res
         .status(400)
         .json({ message: "You cannot follow/unfollow yourself!" });
@@ -149,4 +150,46 @@ const followUnfollowUser = async (req, res) => {
   }
 };
 
-export { signupUser, loginUser, logoutUser, followUnfollowUser };
+// Update user profile
+const updateUser = async (req, res) => {
+  // req user's id and its info. from the client side
+  const { name, email, username, password, profilePic, bio } = req.body;
+  const userId = req.user._id;
+
+  // checks and update info
+  try {
+    let user = await User.findById(userId);
+
+    if (!user) return res.status(400).json({ message: "User not found!" });
+
+    // restrict the current user to update of other user's profile
+    if (req.params.id != userId.toString())
+      return res
+        .status(400)
+        .json({ message: "You cannot update other user's profile!" });
+
+    //update password- first hashing then updating the password
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      user.password = hashedPassword;
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.username = username || user.username;
+    user.profilePic = profilePic || user.profilePic;
+    user.bio = bio || user.bio;
+
+    // saving updated user info. in db
+    user = await user.save();
+
+    // Returning the updated "user" object confirms to the client that the profile update was successful and shows the current state of the user data.
+    res.status(200).json({ message: "Profile updated successfully!", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in update user: ", error.message);
+  }
+};
+
+export { signupUser, loginUser, logoutUser, followUnfollowUser, updateUser };
