@@ -5,11 +5,14 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
+
+//db
 connectDB();
 
 const app = express();
 const PORT = 5000;
 
+// Middlewares:
 //To parse JSON data in the req.body
 app.use(express.json());
 // To parse form data in the req.body
