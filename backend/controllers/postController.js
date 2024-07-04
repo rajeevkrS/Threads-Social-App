@@ -93,4 +93,42 @@ const deletePost = async (req, res) => {
   }
 };
 
-export { createPost, getPost, deletePost };
+// Like/Unlike Post API
+const likeUnlikePost = async (req, res) => {
+  try {
+    // get the post's id renamed as postId
+    const { id: postId } = req.params;
+
+    // get the userId from protected routes
+    const userId = req.user._id;
+
+    // find postId from db
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found!" });
+    }
+
+    // check if likes array has userId or not
+    const userLikedPost = post.likes.includes(userId);
+
+    // if user liked the post
+    if (userLikedPost) {
+      // unlike post- if user unlike any post then pull out the userId
+      await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+      res.status(200).json({ message: "Post unliked successfully!" });
+    } else {
+      // like post- if user likes any post the pushing that userId
+      post.likes.push(userId);
+
+      // saving in the db
+      await post.save();
+      res.status(200).json({ message: "Post liked successfully!" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in like / unlike the post: ", error.message);
+  }
+};
+
+export { createPost, getPost, deletePost, likeUnlikePost };
