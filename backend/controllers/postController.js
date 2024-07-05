@@ -166,4 +166,38 @@ const replyPost = async (req, res) => {
   }
 };
 
-export { createPost, getPost, deletePost, likeUnlikePost, replyPost };
+// Get all post in the feed API
+const getFeedPosts = async (req, res) => {
+  try {
+    // decoded user id
+    const userId = req.user._id;
+
+    // find user id from db
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // get the list of users that current users follows
+    const following = user.following;
+
+    // Find the post were postedBy field in the user's following array and sort the posts in decending order (Latest post at top)
+    const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json(feedPosts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in getting the feed post: ", error.message);
+  }
+};
+
+export {
+  createPost,
+  getPost,
+  deletePost,
+  likeUnlikePost,
+  replyPost,
+  getFeedPosts,
+};
