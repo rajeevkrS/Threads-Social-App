@@ -131,4 +131,39 @@ const likeUnlikePost = async (req, res) => {
   }
 };
 
-export { createPost, getPost, deletePost, likeUnlikePost };
+// Reply to the Post API
+const replyPost = async (req, res) => {
+  try {
+    // get data from client site
+    const { text } = req.body;
+    const { id: postId } = req.params;
+    const userId = req.user._id;
+    const userProfilePic = req.user.profilePic;
+    const username = req.user.username;
+
+    // if no text filled
+    if (!text) {
+      return res.status(400).json({ message: "Text field is required!" });
+    }
+
+    // Find post id from DB
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res(404).json({ message: "Post not found!" });
+    }
+
+    // creating a reply and pushing in replies array[] of post schema
+    const reply = { userId, text, userProfilePic, username };
+    post.replies.push(reply);
+
+    // saving the replies in db
+    await post.save();
+
+    res.status(200).json({ message: "Reply added successfully!", post });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("Error in reply to the post: ", error.message);
+  }
+};
+
+export { createPost, getPost, deletePost, likeUnlikePost, replyPost };
