@@ -13,15 +13,18 @@ import {
   Text,
   useColorModeValue,
   Link,
-  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
 import authSceenAtom from "../atoms/authAtom";
+import useShowToast from "../hooks/useShowToast";
+import userAtom from "../atoms/userAtom";
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
+  const setUser = useSetRecoilState(userAtom);
+  const showToast = useShowToast();
 
   // setter func for updating recoil state
   const setAuthScreen = useSetRecoilState(authSceenAtom);
@@ -33,9 +36,6 @@ export default function SignUp() {
     email: "",
     password: "",
   });
-
-  // toast notofication
-  const toast = useToast();
 
   // Fetch Sign Up API
   const handleSignup = async () => {
@@ -55,18 +55,15 @@ export default function SignUp() {
 
       // if no data
       if (data.error) {
-        toast({
-          title: "Error",
-          description: data.error,
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
+        showToast("Error", data.error, "error");
         return;
       }
 
       // Stores the data object in the browser's local storage under the key "user-threads". The data is first converted to a JSON string.
       localStorage.setItem("user-threads", JSON.stringify(data));
+
+      // then stored the json data in the state
+      setUser(data);
     } catch (error) {
       console.log(error);
     }
