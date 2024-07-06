@@ -12,12 +12,12 @@ const getUserProfile = async (req, res) => {
       .select("-password")
       .select("-updatedAt");
 
-    if (!user) return res.status(400).json({ message: "User not found!" });
+    if (!user) return res.status(400).json({ error: "User not found!" });
 
     // .json(user) sends the updated user data back to the client in JSON format.
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in getting user profile: ", error.message);
   }
 };
@@ -32,7 +32,7 @@ const signupUser = async (req, res) => {
 
     //
     if (user) {
-      return res.status(400).json({ message: "User already exits!" });
+      return res.status(400).json({ error: "User already exits!" });
     }
 
     // Hashing the password before creating the user.
@@ -64,11 +64,11 @@ const signupUser = async (req, res) => {
       });
     } else {
       res.status(400).json({
-        message: "Invalid user data!",
+        error: "Invalid user data!",
       });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in signup user: ", error.message);
   }
 };
@@ -105,7 +105,7 @@ const loginUser = async (req, res) => {
       username: user.username,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in login user: ", error.message);
   }
 };
@@ -121,7 +121,7 @@ const logoutUser = (req, res) => {
 
     res.status(200).json({ message: "User logged out successfully!" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in logout user: ", error.message);
   }
 };
@@ -142,7 +142,7 @@ const followUnfollowUser = async (req, res) => {
     if (id == req.user._id.toString()) {
       return res
         .status(400)
-        .json({ message: "You cannot follow/unfollow yourself!" });
+        .json({ error: "You cannot follow/unfollow yourself!" });
     }
 
     // if userToModify or currentUser not found by which user can follow / unfollow other user
@@ -165,7 +165,7 @@ const followUnfollowUser = async (req, res) => {
       res.status(200).json({ message: "User followed successfully!" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in follow / unfollow user: ", error.message);
   }
 };
@@ -180,13 +180,13 @@ const updateUser = async (req, res) => {
   try {
     let user = await User.findById(userId);
 
-    if (!user) return res.status(400).json({ message: "User not found!" });
+    if (!user) return res.status(400).json({ error: "User not found!" });
 
     // restrict the current user to update of other user's profile
     if (req.params.id != userId.toString())
       return res
         .status(400)
-        .json({ message: "You cannot update other user's profile!" });
+        .json({ error: "You cannot update other user's profile!" });
 
     //update password- first hashing then updating the password
     if (password) {
@@ -207,7 +207,7 @@ const updateUser = async (req, res) => {
     // Returning the updated "user" object confirms to the client that the profile update was successful and shows the current state of the user data.
     res.status(200).json({ message: "Profile updated successfully!", user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in update user: ", error.message);
   }
 };
