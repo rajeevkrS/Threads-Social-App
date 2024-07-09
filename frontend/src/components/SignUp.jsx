@@ -37,10 +37,9 @@ export default function SignUp() {
     password: "",
   });
 
-  // Fetch Sign Up API
   const handleSignup = async () => {
     try {
-      // make a signup api POST req from backend
+      // Fetch Sign Up API
       const res = await fetch("/api/users/signup", {
         method: "POST",
         headers: {
@@ -62,10 +61,10 @@ export default function SignUp() {
       // Stores the data object in the browser's local storage under the key "user-threads". The data is first converted to a JSON string.
       localStorage.setItem("user-threads", JSON.stringify(data));
 
-      // then stored the json data in the state
+      // updating the state with json data
       setUser(data);
     } catch (error) {
-      console.log(error);
+      showToast("Error", error, "error");
     }
   };
 

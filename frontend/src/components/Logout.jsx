@@ -3,6 +3,7 @@ import React from "react";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import { FiLogOut } from "react-icons/fi";
 
 const Logout = () => {
   const setUser = useSetRecoilState(userAtom);
@@ -10,7 +11,7 @@ const Logout = () => {
 
   const handleLogout = async () => {
     try {
-      // Fetch Logout Api req.
+      // Fetch Logout API
       const res = await fetch("/api/users/logout", {
         method: "POST",
         headers: {
@@ -29,10 +30,10 @@ const Logout = () => {
       // clearing the cookie from the user's local storage
       localStorage.removeItem("user-threads");
 
-      // clearing from the state
+      // updating the state with null as cookie gets destroyed
       setUser(null);
     } catch (error) {
-      console.log(error);
+      showToast("Error", error, "error");
     }
   };
 
@@ -44,7 +45,7 @@ const Logout = () => {
       size={"sm"}
       onClick={handleLogout}
     >
-      Logout
+      <FiLogOut size={20} />
     </Button>
   );
 };

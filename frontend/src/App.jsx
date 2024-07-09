@@ -8,28 +8,38 @@ import HomePage from "./pages/HomePage";
 import { useRecoilValue } from "recoil";
 import userAtom from "./atoms/userAtom";
 import Logout from "./components/Logout";
+import UpdateProfilePage from "./pages/UpdateProfilePage";
 
 function App() {
   const user = useRecoilValue(userAtom);
-  console.log(user);
 
   return (
     <Container maxW="620px">
       <Headers />
       <Routes>
+        {/* if user cookie available, sends user to Homepage else navigated to auth route */}
         <Route
           path="/"
           element={user ? <HomePage /> : <Navigate to={"/auth"} />}
         />
+
+        {/* if user cookie not available, sends user to AuthPage else navigated to home route */}
         <Route
           path="/auth"
           element={!user ? <AuthPage /> : <Navigate to={"/"} />}
+        />
+
+        {/* if user cookie available, sends user to UpdateProfilePage else navigated to auth route */}
+        <Route
+          path="/update"
+          element={user ? <UpdateProfilePage /> : <Navigate to={"/auth"} />}
         />
 
         <Route path="/:username" element={<UserPage />} />
         <Route path="/:username/post/:pid" element={<PostPage />} />
       </Routes>
 
+      {/* if user logged in successfully, */}
       {user && <Logout />}
     </Container>
   );

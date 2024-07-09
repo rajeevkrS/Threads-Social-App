@@ -61,6 +61,8 @@ const signupUser = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         username: newUser.username,
+        bio: newUser.bio,
+        profilePic: newUser.profilePic,
       });
     } else {
       res.status(400).json({
@@ -103,6 +105,8 @@ const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       username: user.username,
+      bio: user.bio,
+      profilePic: user.profilePic,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

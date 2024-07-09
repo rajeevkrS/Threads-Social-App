@@ -17,12 +17,48 @@ import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
 import authSceenAtom from "../atoms/authAtom";
+import userAtom from "../atoms/userAtom";
+import useShowToast from "../hooks/useShowToast";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const setUser = useSetRecoilState(userAtom);
+  const showToast = useShowToast();
 
   // setter func for updating recoil state
   const setAuthScreen = useSetRecoilState(authSceenAtom);
+
+  const [inputs, setInputs] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleLogin = async () => {
+    try {
+      //Fetch Logout Api
+      const res = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputs),
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      // Stores the data object in the browser's local storage under the key "user-threads". The data is first converted to a JSON string.
+      localStorage.setItem("user-threads", JSON.stringify(data));
+
+      // updating the state with json data
+      setUser(data);
+    } catch (error) {
+      showToast("Error", error, "error");
+    }
+  };
 
   return (
     <Flex align={"center"} justify={"center"}>
@@ -45,12 +81,24 @@ export default function Login() {
           <Stack spacing={4}>
             <FormControl isRequired>
               <FormLabel>Username</FormLabel>
-              <Input type="text" />
+              <Input
+                type="text"
+                onChange={(e) =>
+                  setInputs({ ...inputs, username: e.target.value })
+                }
+                value={inputs.username}
+              />
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup>
-                <Input type={showPassword ? "text" : "password"} />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  onChange={(e) =>
+                    setInputs({ ...inputs, password: e.target.value })
+                  }
+                  value={inputs.password}
+                />
                 <InputRightElement h={"full"}>
                   <Button
                     variant={"ghost"}
@@ -72,6 +120,7 @@ export default function Login() {
                 _hover={{
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
+                onClick={handleLogin}
               >
                 Login
               </Button>
