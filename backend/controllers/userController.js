@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../util/helpers/generateTokenAndSetCookie.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // Get User Profile
 const getUserProfile = async (req, res) => {
@@ -177,7 +178,8 @@ const followUnfollowUser = async (req, res) => {
 // Update user profile
 const updateUser = async (req, res) => {
   // req user's id and its info. from the client side
-  const { name, email, username, password, profilePic, bio } = req.body;
+  const { name, email, username, password, bio } = req.body;
+  let { profilePic } = req.body;
   const userId = req.user._id;
 
   // checks and update info
@@ -199,6 +201,24 @@ const updateUser = async (req, res) => {
       user.password = hashedPassword;
     }
 
+    // if the profile pic is provided from the frontend
+    if (profilePic) {
+      // remove the old/existing profile pic from cloudinary with public_id
+      if (user.profilePic) {
+        await cloudinary.uploader.destroy(
+          // .spilit("/")- splits the URL into parts
+          // .pop()- retrieves the last part of the split URL, which includes the public_id and the file extension
+          // .split(".")[0]- then removes the file extension, leaving only the public_id
+          user.profilePic.split("/").pop().split(".")[0]
+        );
+      }
+
+      // uploading of a new profile pic to Cloudinary and updates the profilePic URL with the secure URL returned by Cloudinary.
+      const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+      profilePic = uploadedResponse.secure_url;
+    }
+
+    // updating the user infromation
     user.name = name || user.name;
     user.email = email || user.email;
     user.username = username || user.username;
@@ -208,8 +228,11 @@ const updateUser = async (req, res) => {
     // saving updated user info. in db
     user = await user.save();
 
+    // remove the password before sending as a response
+    user.password = null;
+
     // Returning the updated "user" object confirms to the client that the profile update was successful and shows the current state of the user data.
-    res.status(200).json({ message: "Profile updated successfully!", user });
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in update user: ", error.message);
@@ -217,10 +240,10 @@ const updateUser = async (req, res) => {
 };
 
 export {
-  getUserProfile,
   signupUser,
   loginUser,
   logoutUser,
   followUnfollowUser,
   updateUser,
+  getUserProfile,
 };
