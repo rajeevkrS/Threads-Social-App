@@ -15,12 +15,13 @@ import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import useShowToast from "../hooks/useShowToast";
+import { useNavigate } from "react-router-dom";
 
 export default function UserProfilePage() {
   // userAtom holds the user information
   const [user, setUser] = useRecoilState(userAtom);
 
-  //
+  // setting the initial state of the user in the fields
   const [inputs, setInputs] = useState({
     name: user.name,
     username: user.username,
@@ -32,14 +33,24 @@ export default function UserProfilePage() {
   // "useRef" is used to trigger a file selection dialog without requiring the user to directly interact with the file input element.
   const fileRef = useRef(null);
 
+  // when cancel button clicked, navigating to user's profile
+  const navigate = useNavigate();
+
   const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
 
   // Preview image handler hook
   const { handleImageChange, imgUrl } = usePreviewImg();
 
-  //
+  // Func to update the user profile
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // while updating at that moment if follow unfollow button gets clicked more than once then return out of func
+    if (updating) return;
+
+    // updating state to true
+    setUpdating(true);
 
     try {
       //Fetch Update Profile Api
@@ -66,6 +77,9 @@ export default function UserProfilePage() {
       localStorage.setItem("user-threads", JSON.stringify(data));
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      // updating state to false
+      setUpdating(false);
     }
   };
 
@@ -170,6 +184,7 @@ export default function UserProfilePage() {
               _hover={{
                 bg: "red.500",
               }}
+              onClick={() => navigate(`/${user.username}`)}
             >
               Cancel
             </Button>
@@ -181,6 +196,7 @@ export default function UserProfilePage() {
                 bg: "green.500",
               }}
               type="submit"
+              isLoading={updating}
             >
               Submit
             </Button>
