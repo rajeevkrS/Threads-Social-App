@@ -27,6 +27,7 @@ export default function Login() {
 
   // setter func for updating recoil state
   const setAuthScreen = useSetRecoilState(authSceenAtom);
+  const [loading, setLoading] = useState(false);
 
   const [inputs, setInputs] = useState({
     username: "",
@@ -34,6 +35,8 @@ export default function Login() {
   });
 
   const handleLogin = async () => {
+    setLoading(true);
+
     try {
       //Fetch Logout Api
       const res = await fetch("/api/users/login", {
@@ -57,6 +60,8 @@ export default function Login() {
       setUser(data);
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,7 +118,7 @@ export default function Login() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Submitting"
+                loadingText="Logging in"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={"white"}
@@ -121,6 +126,7 @@ export default function Login() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={handleLogin}
+                isLoading={loading}
               >
                 Login
               </Button>

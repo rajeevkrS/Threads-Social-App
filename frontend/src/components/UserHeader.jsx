@@ -108,9 +108,9 @@ const UserHeader = ({ user }) => {
             <Text fontSize={"sm"}>{user.username}</Text>
             <Text
               fontSize={"xs"}
-              bg={"gray.dark"}
-              color={"gray.light"}
-              p={1}
+              bg={"gray.400"}
+              color={"gray.dark"}
+              px={2}
               borderRadius={"full"}
             >
               thread.net

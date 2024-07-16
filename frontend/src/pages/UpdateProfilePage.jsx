@@ -186,7 +186,7 @@ export default function UserProfilePage() {
               }}
               onClick={() => navigate(`/${user.username}`)}
             >
-              Cancel
+              Back
             </Button>
             <Button
               bg={"green.400"}

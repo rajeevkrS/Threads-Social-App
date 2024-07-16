@@ -25,6 +25,7 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const setUser = useSetRecoilState(userAtom);
   const showToast = useShowToast();
+  const [loading, setLoading] = useState(false);
 
   // setter func for updating recoil state
   const setAuthScreen = useSetRecoilState(authSceenAtom);
@@ -38,6 +39,8 @@ export default function SignUp() {
   });
 
   const handleSignup = async () => {
+    setLoading(true);
+
     try {
       // Fetch Sign Up API
       const res = await fetch("/api/users/signup", {
@@ -65,6 +68,8 @@ export default function SignUp() {
       setUser(data);
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -147,7 +152,7 @@ export default function SignUp() {
 
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Submitting"
+                loadingText="Signing Up"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={"white"}
@@ -155,6 +160,7 @@ export default function SignUp() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={handleSignup}
+                isLoading={loading}
               >
                 Sign up
               </Button>
