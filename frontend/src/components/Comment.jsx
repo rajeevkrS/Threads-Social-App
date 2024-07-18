@@ -1,14 +1,22 @@
 import { Avatar, Divider, Flex, Text } from "@chakra-ui/react";
-import { useState } from "react";
-import { BsThreeDots } from "react-icons/bs";
-import Actions from "./Actions";
+import { useNavigate } from "react-router-dom";
 
-const Comment = ({ userAvatar, createdAt, comment, username, likes }) => {
-  const [liked, setLiked] = useState(false);
+// reply and lastReply props are passed from PostPage.jsx
+const Comment = ({ reply, lastReply }) => {
+  const navigate = useNavigate();
+
   return (
     <>
       <Flex gap={4} py={2} my={2} w={"full"}>
-        <Avatar src={userAvatar} size={"sm"} />
+        <Avatar
+          src={reply.userProfilePic}
+          size={"sm"}
+          cursor={"pointer"}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`/${reply.username}`);
+          }}
+        />
 
         <Flex gap={1} w={"full"} flexDirection={"column"}>
           <Flex
@@ -16,28 +24,30 @@ const Comment = ({ userAvatar, createdAt, comment, username, likes }) => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <Text fontSize={"sm"} fontWeight={"bold"}>
-              {username}
+            <Text
+              fontSize={"sm"}
+              fontWeight={"bold"}
+              cursor={"pointer"}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/${reply.username}`);
+              }}
+              sx={{
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+              }}
+            >
+              {reply.username}
             </Text>
-
-            <Flex gap={2} alignItems={"center"}>
-              <Text fontSize={"sm"} color={"gray.light"}>
-                {createdAt}
-              </Text>
-              <BsThreeDots />
-            </Flex>
           </Flex>
 
-          <Text>{comment}</Text>
-          <Actions liked={liked} setLiked={setLiked} />
-
-          <Text fontSize={"sm"} color={"gray.light"}>
-            {likes + (liked ? 1 : 0)} likes
-          </Text>
+          <Text>{reply.text}</Text>
         </Flex>
       </Flex>
 
-      <Divider />
+      {/* If its a last reply in the comment section then not showing Divider */}
+      {!lastReply ? <Divider /> : null}
     </>
   );
 };

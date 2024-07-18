@@ -4,38 +4,18 @@ import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
 import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post";
+import useGetUserProfile from "../hooks/useGetUserProfile";
 
 const UserPage = () => {
-  const [user, setUser] = useState(null);
+  const { user, loading } = useGetUserProfile();
   const { username } = useParams();
   const showToast = useShowToast();
-  const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [fetchingPosts, setFetchingPosts] = useState(true);
 
   // it will run whenever the username changes
   useEffect(
     () => {
-      // Creating the func.
-      const getUser = async () => {
-        try {
-          // Fetch GET User Profile API
-          const res = await fetch(`/api/users/profile/${username}`);
-
-          const data = await res.json();
-          if (data.error) {
-            showToast("Error", data.error, "error");
-          }
-
-          //update the state
-          setUser(data);
-        } catch (error) {
-          showToast("Error", error.message, "error");
-        } finally {
-          setLoading(false);
-        }
-      };
-
       // Creating the func.
       const getPosts = async () => {
         setFetchingPosts(true);
@@ -44,7 +24,6 @@ const UserPage = () => {
           // Fetch Posts by searching by Username
           const res = await fetch(`/api/posts/user/${username}`);
           const data = await res.json();
-          console.log(data);
 
           //update the state
           setPosts(data);
@@ -58,14 +37,13 @@ const UserPage = () => {
       };
 
       // Calling the func.
-      getUser();
       getPosts();
     },
     [username],
     [showToast]
   );
 
-  // if no user then loading
+  // if no user when landing to the page, for the while show loading
   if (!user && loading) {
     return (
       <Flex justifyContent={"center"}>

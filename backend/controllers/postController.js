@@ -66,7 +66,7 @@ const getPost = async (req, res) => {
     }
 
     // if post found then sending a response with the post data
-    res.status(200).json({ message: "Post found!", post });
+    res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in getting a post: ", error.message);
