@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
-import UserPost from "../components/UserPost";
 import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
 import { Flex, Spinner } from "@chakra-ui/react";
+import Post from "../components/Post";
 
 const UserPage = () => {
   const [user, setUser] = useState(null);
   const { username } = useParams();
   const showToast = useShowToast();
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [fetchingPosts, setFetchingPosts] = useState(true);
 
   // it will run whenever the username changes
   useEffect(
@@ -28,14 +30,36 @@ const UserPage = () => {
           //update the state
           setUser(data);
         } catch (error) {
-          showToast("Error", error, "error");
+          showToast("Error", error.message, "error");
         } finally {
           setLoading(false);
         }
       };
 
+      // Creating the func.
+      const getPosts = async () => {
+        setFetchingPosts(true);
+
+        try {
+          // Fetch Posts by searching by Username
+          const res = await fetch(`/api/posts/user/${username}`);
+          const data = await res.json();
+          console.log(data);
+
+          //update the state
+          setPosts(data);
+        } catch (error) {
+          showToast("Error", error.message, "error");
+          // clearing the state
+          setPosts([]);
+        } finally {
+          setFetchingPosts(false);
+        }
+      };
+
       // Calling the func.
       getUser();
+      getPosts();
     },
     [username],
     [showToast]
@@ -58,28 +82,21 @@ const UserPage = () => {
       {/* sending user's infomation using props */}
       <UserHeader user={user} />
 
-      <UserPost
-        likes={1200}
-        replies={481}
-        postImg="/post1.png"
-        postTitle="Lets talk about threds."
-      />
+      {/* User's Posts */}
+      {!fetchingPosts && posts.length === 0 && (
+        <Flex justifyContent={"center"} my={12}>
+          <h1>User has no posts.</h1>
+        </Flex>
+      )}
 
-      <UserPost
-        likes={10}
-        replies={41}
-        postImg="/post2.png"
-        postTitle="Nice tutorial"
-      />
-
-      <UserPost
-        likes={200}
-        replies={48}
-        postImg="/post3.png"
-        postTitle="I live this guy."
-      />
-
-      <UserPost likes={120} replies={41} postTitle="This is my first thread." />
+      {fetchingPosts && (
+        <Flex justifyContent={"center"} my={12}>
+          <Spinner size={"xl"} />
+        </Flex>
+      )}
+      {posts.map((post) => (
+        <Post key={post._id} post={post} postedBy={post.postedBy} />
+      ))}
     </>
   );
 };

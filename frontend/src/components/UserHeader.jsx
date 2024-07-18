@@ -28,7 +28,7 @@ const UserHeader = ({ user }) => {
 
   // State to check if currentUser is following the other users
   const [following, setFollowing] = useState(
-    user.followers.includes(currentUser._id)
+    user.followers.includes(currentUser?._id)
   );
 
   // updating state
@@ -75,7 +75,7 @@ const UserHeader = ({ user }) => {
         showToast("Success", `Followed ${user.name}`, "success");
 
         // increment in the followers length by 1 with the current user id
-        user.followers.push(currentUser._id);
+        user.followers.push(currentUser?._id);
       }
 
       // if the res is successful then changing the following state
@@ -148,14 +148,14 @@ const UserHeader = ({ user }) => {
       <Text>{user.bio}</Text>
 
       {/* when looking to our own profile */}
-      {currentUser._id === user._id && (
+      {currentUser?._id === user._id && (
         <Link as={RouterLink} to="/update">
           <Button size={"sm"}>Update Profile</Button>
         </Link>
       )}
 
       {/* when looking to others profile */}
-      {currentUser._id !== user._id && (
+      {currentUser?._id !== user._id && (
         <Button size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>
           {following ? "Unfollow" : "Follow"}
         </Button>

@@ -91,6 +91,15 @@ const deletePost = async (req, res) => {
         .json({ error: "Unauthorized to delete the post!" });
     }
 
+    // deleting the img from cloudinary
+    if (post.img) {
+      // getting the img id
+      const imgId = post.img.split("/").pop().split(".")[0];
+
+      // removing
+      await cloudinary.uploader.destroy(imgId);
+    }
+
     // after above checks, removing from the DB
     await Post.findByIdAndDelete(req.params.id);
 
@@ -201,6 +210,28 @@ const getFeedPosts = async (req, res) => {
   }
 };
 
+// Get Searched User Posts API
+const getUserPosts = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
+    // Find posts from db using user ID
+    const posts = await Post.find({ postedBy: user._id }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   createPost,
   getPost,
@@ -208,4 +239,5 @@ export {
   likeUnlikePost,
   replyPost,
   getFeedPosts,
+  getUserPosts,
 };
