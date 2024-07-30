@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Post from "../models/postModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../util/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
@@ -240,6 +241,26 @@ const updateUser = async (req, res) => {
 
     // saving updated user info. in db
     user = await user.save();
+
+    // find all post that logged in user replied and update username and userProfilePic fields
+    await Post.updateMany(
+      // Filter:
+      // This finds all Post documents where any item in the replies array has a userId field that matches the provided userId. Then 👇
+      { "replies.userId": userId },
+
+      //Update Operation:
+      //The $set operator updates the specified fields. In this case, it updates the username and userProfilePic of the replies array elements that match the filter defined in arrayFilters.
+      {
+        $set: {
+          "replies.$[reply].username": user.username,
+          "replies.$[reply].userProfilePic": user.profilePic,
+        },
+      },
+
+      //Array Filters:
+      // This specifies that the update should only apply to array elements where reply.userId matches the provided userId.
+      { arrayFilters: [{ "reply.userId": userId }] }
+    );
 
     // remove the password before sending as a response
     user.password = null;

@@ -23,8 +23,10 @@ import { useRef, useState } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
 import { BsFillImageFill } from "react-icons/bs";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
+import postAtom from "../atoms/postAtom";
+import { useParams } from "react-router-dom";
 
 const MAX_CHAR = 500;
 
@@ -36,6 +38,8 @@ const CreatePost = () => {
   const [loading, setloading] = useState(false);
   const imageRef = useRef(null);
   const user = useRecoilValue(userAtom);
+  const { username } = useParams();
+  const [posts, setPosts] = useRecoilState(postAtom);
 
   // Stores the text of the post
   const [postText, setPostText] = useState("");
@@ -88,6 +92,12 @@ const CreatePost = () => {
 
       showToast("Success", "Post created successfully!", "success");
 
+      // check if user in his own profile so that when logged in user creates a post, post should displayed in logged in user's profile.
+      if (username === user.username) {
+        // update the state of an array of posts and put the new post at the top and spread the remaining posts
+        setPosts([data, ...posts]);
+      }
+
       // After posting with post button,
       onClose();
 
@@ -106,12 +116,12 @@ const CreatePost = () => {
       <Button
         position={"fixed"}
         bottom={10}
-        right={10}
-        leftIcon={<AddIcon />}
+        right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen}
+        size={{ base: "sm", sm: "md" }}
       >
-        Post
+        <AddIcon />
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>

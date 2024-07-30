@@ -16,15 +16,16 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
+import postAtom from "../atoms/postAtom";
 
 // Renamed post as "post_"
-const Actions = ({ post: post_ }) => {
+const Actions = ({ post }) => {
   const user = useRecoilValue(userAtom);
   // "post_.likes.includes(user?._id)" checks if the current user's ID (user?._id) is present in the post_.likes array.
-  const [liked, setLiked] = useState(post_.likes.includes(user?._id));
-  const [post, setPost] = useState(post_);
+  const [liked, setLiked] = useState(post.likes.includes(user?._id));
+  const [posts, setPosts] = useRecoilState(postAtom);
   const [isLiking, setIsLiking] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [reply, setReply] = useState("");
@@ -61,13 +62,39 @@ const Actions = ({ post: post_ }) => {
 
       // check and updating the state
       if (!liked) {
-        // If the user has not liked the post yet.
+        // Like the Post Logic:
+        // If the user has not liked the post yet then liking.
         // add the id of the current user to post.likes array.
-        setPost({ ...post, likes: [...post.likes, user._id] });
+
+        // Inside posts array, going to find the posts thats have liking and then add the id of the current user's id into a likes array.
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            // { ...p } creates a shallow copy of the current post object.
+            // likes: [...p.likes, user._id] updates the likes property of the post. It creates a new array that includes all existing likes (...p.likes) and adds the current user's ID (user._id) to the end of the array.
+            // return { ...p, likes: [...p.likes, user._id] }; returns the updated post object.
+            return { ...p, likes: [...p.likes, user._id] };
+          }
+
+          // If the current post's ID does not match the post._id, it returns the post unchanged.
+          return p;
+        });
+
+        // updating the state
+        setPosts(updatedPosts);
       } else {
-        // If the user has already liked the post.
+        // Unlike the Post Logic:
+        // If the user has already liked the post then unliking
         // remove the id of the current user from post.likes array.
-        setPost({ ...post, likes: post.likes.filter((id) => id !== user._id) });
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            // likes: p.likes.filter((id) => id !== user._id) updates the likes property of the post. The filter method creates a new array that includes all likes except the one matching the current user's ID (user._id).
+            return { ...p, likes: p.likes.filter((id) => id !== user._id) };
+          }
+
+          return p;
+        });
+
+        setPosts(updatedPosts);
       }
 
       // toggling the state
@@ -108,7 +135,15 @@ const Actions = ({ post: post_ }) => {
       }
 
       // updating the state
-      setPost({ ...post, replies: [...post.replies, data.reply] });
+      const updatedPosts = posts.map((p) => {
+        if (p._id === post._id) {
+          // replies: [...p.replies, data] updates the replies property of the post. It creates a new array that includes all existing replies (...p.replies) and adds the new reply (data) to the end of the array.
+          return { ...p, replies: [...p.replies, data] };
+        }
+        return p;
+      });
+
+      setPosts(updatedPosts);
 
       showToast("Success", "Reply posted successfully!", "success");
 

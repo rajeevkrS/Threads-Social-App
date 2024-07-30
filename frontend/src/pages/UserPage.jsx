@@ -5,43 +5,41 @@ import useShowToast from "../hooks/useShowToast";
 import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post";
 import useGetUserProfile from "../hooks/useGetUserProfile";
+import { useRecoilState } from "recoil";
+import postAtom from "../atoms/postAtom";
 
 const UserPage = () => {
   const { user, loading } = useGetUserProfile();
   const { username } = useParams();
   const showToast = useShowToast();
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useRecoilState(postAtom);
   const [fetchingPosts, setFetchingPosts] = useState(true);
 
   // it will run whenever the username changes
-  useEffect(
-    () => {
-      // Creating the func.
-      const getPosts = async () => {
-        setFetchingPosts(true);
+  useEffect(() => {
+    // Creating the func.
+    const getPosts = async () => {
+      setFetchingPosts(true);
 
-        try {
-          // Fetch Posts by searching by Username
-          const res = await fetch(`/api/posts/user/${username}`);
-          const data = await res.json();
+      try {
+        // Fetch Posts by searching by Username
+        const res = await fetch(`/api/posts/user/${username}`);
+        const data = await res.json();
 
-          //update the state
-          setPosts(data);
-        } catch (error) {
-          showToast("Error", error.message, "error");
-          // clearing the state
-          setPosts([]);
-        } finally {
-          setFetchingPosts(false);
-        }
-      };
+        //update the state
+        setPosts(data);
+      } catch (error) {
+        showToast("Error", error.message, "error");
+        // clearing the state
+        setPosts([]);
+      } finally {
+        setFetchingPosts(false);
+      }
+    };
 
-      // Calling the func.
-      getPosts();
-    },
-    [username],
-    [showToast]
-  );
+    // Calling the func.
+    getPosts();
+  }, [username, showToast, setPosts]);
 
   // if no user when landing to the page, for the while show loading
   if (!user && loading) {
