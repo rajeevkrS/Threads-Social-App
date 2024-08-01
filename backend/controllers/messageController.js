@@ -79,4 +79,23 @@ const getMessages = async (req, res) => {
   }
 };
 
-export { sendMessage, getMessages };
+const getCoversation = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    // Find all conversations of particular user.
+    // as participants has the reference of User, using populate method fetching the username and profile pic of the users
+    const conversations = await Conversation.find({
+      participants: userId,
+    }).populate({
+      path: "participants",
+      select: "username profilePic",
+    });
+
+    res.status(200).json(conversations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export { sendMessage, getMessages, getCoversation };
