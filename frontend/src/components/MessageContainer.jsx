@@ -40,6 +40,7 @@ const MessageContainer = () => {
           return;
         }
 
+        //
         setMessages(data);
       } catch (error) {
         showToast("Error", error.message, "error");
@@ -116,7 +117,7 @@ const MessageContainer = () => {
           ))}
       </Flex>
 
-      <MessageInput />
+      <MessageInput setMessages={setMessages} />
     </Flex>
   );
 };

@@ -23,6 +23,10 @@ const Conversation = ({ conversation }) => {
   );
   const colorMode = useColorMode();
 
+  if (!user || !lastMessage) {
+    return null; // or some fallback UI
+  }
+
   return (
     <Flex
       gap={4}
@@ -58,7 +62,7 @@ const Conversation = ({ conversation }) => {
             sm: "sm",
             md: "md",
           }}
-          src={user.profilePic}
+          src={user.profilePic || "https://bit.ly/broken-link"}
         >
           <AvatarBadge boxSize={"1em"} bg={"green.500"} />
         </Avatar>

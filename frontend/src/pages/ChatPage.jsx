@@ -40,7 +40,6 @@ const ChatPage = () => {
           return;
         }
 
-        console.log(data);
         //
         setCoversations(data);
       } catch (error) {
