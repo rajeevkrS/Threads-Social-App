@@ -12,8 +12,47 @@ import {
 import Conversation from "../components/Conversation";
 import { GiConversation } from "react-icons/gi";
 import MessageContainer from "../components/MessageContainer";
+import { useEffect, useState } from "react";
+import useShowToast from "../hooks/useShowToast";
+import { useRecoilState } from "recoil";
+import {
+  conversationsAtom,
+  selectedConversationAtom,
+} from "../atoms/messagesAtom";
 
 const ChatPage = () => {
+  const showToast = useShowToast();
+  const [loading, setLoading] = useState(true);
+  const [conversations, setCoversations] = useRecoilState(conversationsAtom);
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
+
+  useEffect(() => {
+    const getConversations = async () => {
+      try {
+        // Fetch Get Conversations API
+        const res = await fetch("/api/messages/conversations");
+
+        const data = await res.json();
+        if (data.error) {
+          showToast("Error", data.message, "error");
+          return;
+        }
+
+        console.log(data);
+        //
+        setCoversations(data);
+      } catch (error) {
+        showToast("Error", error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getConversations();
+  }, [showToast, setCoversations]);
+
   return (
     <Box
       position={"absolute"}
@@ -63,7 +102,7 @@ const ChatPage = () => {
             </Flex>
           </form>
 
-          {false &&
+          {loading &&
             [0, 1, 2, 3, 4].map((_, i) => (
               <Flex
                 key={i}
@@ -83,25 +122,32 @@ const ChatPage = () => {
               </Flex>
             ))}
 
-          <Conversation />
-          <Conversation />
-          <Conversation />
+          {!loading &&
+            conversations.map((conversation) => (
+              <Conversation
+                key={conversation._id}
+                conversation={conversation}
+              />
+            ))}
         </Flex>
 
-        {/* <Flex
-          flex={70}
-          borderRadius={"md"}
-          p={2}
-          flexDirection={"column"}
-          alignItems={"center"}
-          justifyContent={"center"}
-          height={"400px"}
-        >
-          <GiConversation size={100} />
-          <Text fontSize={20}>Select a coversation to start messaging</Text>
-        </Flex> */}
+        {!selectedConversation._id && (
+          <Flex
+            flex={70}
+            border={"2px solid gray"}
+            borderRadius={"20"}
+            p={2}
+            flexDirection={"column"}
+            alignItems={"center"}
+            justifyContent={"center"}
+            height={"200px"}
+          >
+            <GiConversation size={100} />
+            <Text fontSize={20}>Select a coversation to start messaging</Text>
+          </Flex>
+        )}
 
-        <MessageContainer />
+        {selectedConversation._id && <MessageContainer />}
       </Flex>
     </Box>
   );
