@@ -24,7 +24,7 @@ const Conversation = ({ conversation }) => {
   const colorMode = useColorMode();
 
   if (!user || !lastMessage) {
-    return null; // or some fallback UI
+    return null;
   }
 
   return (
@@ -44,6 +44,7 @@ const Conversation = ({ conversation }) => {
           userId: user._id,
           userProfilePic: user.profilePic,
           username: user.username,
+          mock: conversation.mock,
         })
       }
       bg={

@@ -38,7 +38,7 @@ const MessageInput = ({ setMessages }) => {
         return;
       }
 
-      console.log(data);
+      // console.log(data);
 
       // Update the state with all the messages & the lastest msg too.
       setMessages((messages) => [...messages, data]);

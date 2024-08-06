@@ -14,19 +14,24 @@ import { GiConversation } from "react-icons/gi";
 import MessageContainer from "../components/MessageContainer";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   conversationsAtom,
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
 
 const ChatPage = () => {
-  const showToast = useShowToast();
   const [loading, setLoading] = useState(true);
+  const [searchConvo, setSearchConvo] = useState("");
+  const [searchingUser, setSearchingUser] = useState(false);
+
   const [conversations, setCoversations] = useRecoilState(conversationsAtom);
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
+  const currentUser = useRecoilValue(userAtom);
+  const showToast = useShowToast();
 
   useEffect(() => {
     const getConversations = async () => {
@@ -51,6 +56,71 @@ const ChatPage = () => {
 
     getConversations();
   }, [showToast, setCoversations]);
+
+  // Search Conversation Handler
+  const handleConvoSearch = async (e) => {
+    e.preventDefault();
+    setSearchingUser(true);
+
+    try {
+      // Fetch User Profile API
+      const res = await fetch(`/api/users/profile/${searchConvo}`);
+
+      const searchedUser = await res.json();
+      if (searchedUser.error) {
+        showToast("Error", searchedUser.message, "error");
+        return;
+      }
+
+      // if current user trying to search themselves to msg
+      const messagingYourself = searchedUser._id === currentUser._id;
+      if (messagingYourself) {
+        showToast("Error", "You cannot message yourself!", "error");
+        return;
+      }
+
+      // if current user is already in a conversation with the searched user
+      // Finding in conversations [] with id's of first participants matches with searchedUser.
+      const convoAlreadyExists = conversations.find(
+        (conversation) => conversation.participants[0]._id === searchedUser._id
+      );
+      if (convoAlreadyExists) {
+        // updating the state with the details of the existing conversation
+        setSelectedConversation({
+          _id: convoAlreadyExists._id,
+          userId: searchedUser._id,
+          username: searchedUser.username,
+          userProfilePic: searchedUser.profilePic,
+        });
+        return;
+      }
+
+      // Mock Conversation basically creates a new conversation object with default values and the searched user's information
+      const mockConversation = {
+        mock: true,
+        lastMessage: {
+          text: "",
+          sender: "",
+        },
+        //generates a unique ID based on the current timestamp.
+        _id: Date.now(),
+        participants: [
+          {
+            _id: searchedUser._id,
+            username: searchedUser.username,
+            profilePic: searchedUser.profilePic,
+          },
+        ],
+      };
+
+      // upating the state with appending the new mock conversation to the existing conversations array.
+      setCoversations((prevConvs) => [...prevConvs, mockConversation]);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setSearchingUser(false);
+    }
+  };
 
   return (
     <Box
@@ -92,10 +162,19 @@ const ChatPage = () => {
           >
             Your Conversations
           </Text>
-          <form>
+
+          {/* Search User */}
+          <form onSubmit={handleConvoSearch}>
             <Flex alignItems={"center"} gap={2}>
-              <Input placeholder="Search for a user" />
-              <Button size={"sm"}>
+              <Input
+                placeholder="Search for a user"
+                onChange={(e) => setSearchConvo(e.target.value)}
+              />
+              <Button
+                size={"sm"}
+                onClick={handleConvoSearch}
+                isLoading={searchingUser}
+              >
                 <SearchIcon />
               </Button>
             </Flex>
