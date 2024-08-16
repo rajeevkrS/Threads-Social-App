@@ -10,11 +10,15 @@ import {
 } from "@chakra-ui/react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { selectedConversationAtom } from "../atoms/messagesAtom";
-import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  conversationsAtom,
+  selectedConversationAtom,
+} from "../atoms/messagesAtom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -24,6 +28,51 @@ const MessageContainer = () => {
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const currentUser = useRecoilValue(userAtom);
+  const { socket } = useSocket();
+  const setConversations = useSetRecoilState(conversationsAtom);
+  const msgEndRef = useRef(null);
+
+  // handling real-time updates to the conversation and message list when new messages are received through the WebSocket connection.
+  useEffect(() => {
+    socket.on("newMessage", (message) => {
+      // Messages should be sent to the selected conversation only
+      if (selectedConversation._id === message.conversationId) {
+        // updating the state by creating a new array by spreading the previous messages and appending the new message to the end of the array.
+        setMessages((prevMsg) => [...prevMsg, message]);
+      }
+
+      // state which holds all the conversations the user is part of.
+      setConversations((prevConvo) => {
+        const updatedConvo = prevConvo.map((conversation) => {
+          //It maps through the current conversations and checks if the conversation ID matches the message.conversationId.
+          //This ensures that the conversation preview (which usually shows the last message) is updated in real-time.
+          if (conversation._id === message.conversationId) {
+            // Updating the Conversation:
+            return {
+              ...conversation,
+              lastMessage: {
+                text: message.text,
+                sender: message.sender,
+              },
+            };
+          }
+          // If the conversation ID does not match the message's conversation ID, the code returns the conversation object unchanged.
+          return conversation;
+        });
+        // Updating the Conversations State
+        return updatedConvo;
+      });
+    });
+
+    //cleanup function that removes the newMessage event listener when the component unmounts or when the socket dependency changes.
+    return () => socket.off("newMessage");
+  }, [socket]);
+
+  // scroll to latest message
+  useEffect(() => {
+    // Accessing the DOM element via .current to scroll into view
+    msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     // Fetch Get Messages API
@@ -111,11 +160,20 @@ const MessageContainer = () => {
 
         {!loading &&
           messages.map((message) => (
-            <Message
+            <Flex
               key={message._id}
-              message={message}
-              ownMessage={currentUser._id === message.sender}
-            />
+              direction={"column"}
+              ref={
+                messages.length - 1 === messages.indexOf(message)
+                  ? msgEndRef
+                  : null
+              }
+            >
+              <Message
+                message={message}
+                ownMessage={currentUser._id === message.sender}
+              />
+            </Flex>
           ))}
       </Flex>
 

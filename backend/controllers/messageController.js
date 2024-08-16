@@ -1,5 +1,6 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
+import { getRecipientSocketId, io } from "../socket/socket.js";
 
 //Send Message API
 const sendMessage = async (req, res) => {
@@ -45,6 +46,16 @@ const sendMessage = async (req, res) => {
         },
       }),
     ]);
+
+    // Retrieve the Recipient's Socket ID for determining whether the recipient is currently online and connected to the WebSocket server.
+    const recipientSocketId = getRecipientSocketId(recipientId);
+
+    // If the recipient is online,
+    if (recipientSocketId) {
+      // the server sends a newMessage event to the specific socket ID of the recipient using "io.to().emit()"
+      // The newMessage is sent directly to the recipient's socket, ensuring they receive the message in real-time.
+      io.to(recipientSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {

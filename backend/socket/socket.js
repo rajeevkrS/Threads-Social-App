@@ -16,6 +16,13 @@ const io = new Server(server, {
   },
 });
 
+// This function takes in a recipientId as an argument.
+// It looks up the recipientId in the userSocketMap and returns the associated socket ID.
+// If the recipient is connected to the WebSocket server, their socket ID will be found in userSocketMap.
+export const getRecipientSocketId = (recipientId) => {
+  return userSocketMap[recipientId];
+};
+
 // An object that maps user IDs to their corresponding socket IDs. This will help track which socket belongs to which user.
 const userSocketMap = {}; //userId: socketId
 
@@ -35,9 +42,11 @@ io.on("connection", (socket) => {
   // Emits an event named getOnlineUsers to all connected clients, sending them the list of currently online user IDs.
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  // Disconnection
+  // Disconnecting and removing the user ID and socket ID to the userSocketMap.
   socket.on("disconnect", () => {
     console.log("User disconnected!");
+    delete userSocketMap[userId];
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
 
