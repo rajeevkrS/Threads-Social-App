@@ -52,6 +52,7 @@ const sendMessage = async (req, res) => {
 
     // If the recipient is online,
     if (recipientSocketId) {
+      // sending the "newMessage" event
       // the server sends a newMessage event to the specific socket ID of the recipient using "io.to().emit()"
       // The newMessage is sent directly to the recipient's socket, ensuring they receive the message in real-time.
       io.to(recipientSocketId).emit("newMessage", newMessage);

@@ -1,6 +1,7 @@
 import {
   Avatar,
   AvatarBadge,
+  Box,
   Flex,
   Image,
   Stack,
@@ -100,7 +101,10 @@ const Conversation = ({ conversation, isOnline }) => {
           }
         >
           {currentUser._id === lastMessage.sender ? (
-            <BsCheck2All size={16} />
+            // handled in ChatPage.jsx
+            <Box color={lastMessage.seen ? "blue.400" : ""}>
+              <BsCheck2All size={16} />
+            </Box>
           ) : (
             ""
           )}
