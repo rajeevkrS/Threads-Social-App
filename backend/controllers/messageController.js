@@ -1,12 +1,14 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
 import { getRecipientSocketId, io } from "../socket/socket.js";
+import { v2 as cloudinary } from "cloudinary";
 
 //Send Message API
 const sendMessage = async (req, res) => {
   try {
     // Logic to send a message to receiver
     const { recipientId, message } = req.body;
+    let { img } = req.body;
     const senderId = req.user._id;
 
     // check if conversation exists or not between the sender & recipient
@@ -28,11 +30,18 @@ const sendMessage = async (req, res) => {
       await conversation.save();
     }
 
+    // clodinary setup for upload images
+    if (img) {
+      const uploadRes = await cloudinary.uploader.upload(img);
+      img = uploadRes.secure_url;
+    }
+
     // After creating cconversation, now creating a message
     const newMessage = new Message({
       conversationId: conversation._id,
       sender: senderId,
       text: message,
+      img: img || "",
     });
 
     // saving into DB with the update of lastMessage field
