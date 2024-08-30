@@ -19,6 +19,7 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
+import messageSound from "../assets/sounds/message.mp3";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -39,6 +40,12 @@ const MessageContainer = () => {
         if (selectedConversation._id === message.conversationId) {
           // updating the state by creating a new array by spreading the previous messages and appending the new message to the end of the array.
           setMessages((prevMsg) => [...prevMsg, message]);
+        }
+
+        // play notification sound will only play if the document is not in focus.
+        if (!document.hasFocus()) {
+          const sound = new Audio(messageSound);
+          sound.play();
         }
 
         // state which holds all the conversations the user is part of.
