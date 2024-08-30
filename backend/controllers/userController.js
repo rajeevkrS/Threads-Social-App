@@ -194,7 +194,7 @@ const updateUser = async (req, res) => {
   // req user's id and its info. from the client side
   const { name, email, username, password, bio } = req.body;
   let { profilePic } = req.body;
-  const userId = req.user._id;
+  const userId = req.user._id; // getting the current user's id
 
   // checks and update info
   try {
@@ -273,6 +273,53 @@ const updateUser = async (req, res) => {
   }
 };
 
+const getSuggestedUsers = async (req, res) => {
+  try {
+    // Exclude the current user from suggested users array, also exclude users that current user is already following then filtered the non followed users.
+
+    // getting the current user's id
+    const userId = req.user._id;
+
+    // find in db that current user's total following by using "select" method which gives an array that contains the _id's inside the following object
+    const usersFollowedByCurrentUser = await User.findById(userId).select(
+      "following"
+    );
+
+    // Fetch and filter the 10 user's id from DB
+    const users = await User.aggregate([
+      {
+        // filters in the User collection, only returning those where the _id field is not equal to userId
+        // This ensures that the current user is excluded from the list of suggested users
+        $match: {
+          _id: { $ne: userId },
+        },
+      },
+      {
+        // randomly selects 10 users from the database who are not the current user.
+        $sample: { size: 10 },
+      },
+    ]);
+
+    // filteredUsers array contains only those users who are not followed by the current user.
+    // Filters the list of users obtained from the aggregation pipeline.
+    // usersFollowedByCurrentUser.following: array that contains the _ids of the users that the current user is already following.
+    // !usersFollowedByCurrentUser.following.includes(user._id): For each user in the users array, this checks if their _id is not included in the following array. If the _id is not in the following array, that user is included in the filteredUsers array.
+    const filteredUsers = users.filter(
+      (user) => !usersFollowedByCurrentUser.following.includes(user._id)
+    );
+
+    // slice method is used to create a new array containing only the first 4 elements from the filteredUsers array.
+    const suggestedUsers = filteredUsers.slice(0, 4);
+
+    // sets null to the password field of every suggested users
+    suggestedUsers.forEach((user) => (user.password = null));
+
+    res.status(200).json(suggestedUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   signupUser,
   loginUser,
@@ -280,4 +327,5 @@ export {
   followUnfollowUser,
   updateUser,
   getUserProfile,
+  getSuggestedUsers,
 };

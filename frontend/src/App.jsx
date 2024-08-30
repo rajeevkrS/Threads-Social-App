@@ -1,5 +1,5 @@
 import { Box, Container } from "@chakra-ui/react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Headers from "./components/Header";
 import PostPage from "./pages/PostPage";
 import UserPage from "./pages/UserPage";
@@ -13,10 +13,13 @@ import ChatPage from "./pages/ChatPage";
 
 function App() {
   const user = useRecoilValue(userAtom);
+  const { pathname } = useLocation();
 
   return (
     <Box position={"relative"} w={"full"}>
-      <Container maxW="620px">
+      <Container
+        maxW={pathname === "/" ? { base: "620px", md: "900px" } : "620px"}
+      >
         <Headers />
         <Routes>
           {/* if user cookie available, sends user to Homepage else navigated to auth route */}
