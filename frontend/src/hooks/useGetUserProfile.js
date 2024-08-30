@@ -20,6 +20,12 @@ const useGetUserProfile = () => {
           return;
         }
 
+        // if user account has been frozen then setting user to null
+        if (data.isFrozen) {
+          setUser(null);
+          return;
+        }
+
         // Updating the state
         setUser(data);
       } catch (error) {

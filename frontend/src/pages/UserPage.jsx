@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
-import { Flex, Spinner } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 import Post from "../components/Post";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import { useRecoilState } from "recoil";
@@ -17,8 +17,10 @@ const UserPage = () => {
 
   // it will run whenever the username changes
   useEffect(() => {
-    // Creating the func.
     const getPosts = async () => {
+      // if user is null
+      if (!user) return;
+
       setFetchingPosts(true);
 
       try {
@@ -39,7 +41,7 @@ const UserPage = () => {
 
     // Calling the func.
     getPosts();
-  }, [username, showToast, setPosts]);
+  }, [username, showToast, setPosts, user]);
 
   // if no user when landing to the page, for the while show loading
   if (!user && loading) {
@@ -51,7 +53,12 @@ const UserPage = () => {
   }
 
   // if no user and not loading
-  if (!user && !loading) return <h1>User not found!</h1>;
+  if (!user && !loading)
+    return (
+      <Text fontWeight={"bold"} textAlign={"center"}>
+        User not found!
+      </Text>
+    );
 
   return (
     <>
