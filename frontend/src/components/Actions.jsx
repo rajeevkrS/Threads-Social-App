@@ -4,6 +4,10 @@ import {
   Flex,
   FormControl,
   Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,9 +15,12 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Portal,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
+import { FaLink } from "react-icons/fa";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -32,6 +39,7 @@ const Actions = ({ post }) => {
 
   const showToast = useShowToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   const handleLikeAndUnlike = async () => {
     if (!user) {
@@ -159,9 +167,18 @@ const Actions = ({ post }) => {
     }
   };
 
+  // copy the link
+  const copyURL = async () => {
+    const currentURL = window.location.href;
+    navigator.clipboard.writeText(currentURL).then(() => {
+      toast({ description: "Copied!" });
+    });
+  };
+
   return (
     <Flex flexDirection={"column"}>
       <Flex gap={3} my={2} onClick={(e) => e.preventDefault()}>
+        {/* Like/Unlike Button */}
         <svg
           aria-label="Like"
           color={liked ? "rgb(237, 73, 86)" : ""}
@@ -180,6 +197,7 @@ const Actions = ({ post }) => {
           ></path>
         </svg>
 
+        {/* Comment Button */}
         <svg
           aria-label="Comment"
           color=""
@@ -201,7 +219,8 @@ const Actions = ({ post }) => {
           ></path>
         </svg>
 
-        <svg
+        {/* Repost Button */}
+        {/* <svg
           aria-label="Repost"
           color="currentColor"
           fill="currentColor"
@@ -216,37 +235,61 @@ const Actions = ({ post }) => {
             fill=""
             d="M19.998 9.497a1 1 0 0 0-1 1v4.228a3.274 3.274 0 0 1-3.27 3.27h-5.313l1.791-1.787a1 1 0 0 0-1.412-1.416L7.29 18.287a1.004 1.004 0 0 0-.294.707v.001c0 .023.012.042.013.065a.923.923 0 0 0 .281.643l3.502 3.504a1 1 0 0 0 1.414-1.414l-1.797-1.798h5.318a5.276 5.276 0 0 0 5.27-5.27v-4.228a1 1 0 0 0-1-1Zm-6.41-3.496-1.795 1.795a1 1 0 1 0 1.414 1.414l3.5-3.5a1.003 1.003 0 0 0 0-1.417l-3.5-3.5a1 1 0 0 0-1.414 1.414l1.794 1.794H8.27A5.277 5.277 0 0 0 3 9.271V13.5a1 1 0 0 0 2 0V9.271a3.275 3.275 0 0 1 3.271-3.27Z"
           ></path>
-        </svg>
+        </svg> */}
 
-        <svg
-          aria-label="Share"
-          color=""
-          fill="rgb(243, 245, 247)"
-          height="20"
-          role="img"
-          viewBox="0 0 24 24"
-          width="20"
-          cursor={"pointer"}
-        >
-          <title>Share</title>
-          <line
-            fill="none"
-            stroke="currentColor"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            x1="22"
-            x2="9.218"
-            y1="3"
-            y2="10.083"
-          ></line>
-          <polygon
-            fill="none"
-            points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
-            stroke="currentColor"
-            strokeLinejoin="round"
-            strokeWidth="2"
-          ></polygon>
-        </svg>
+        {/* Share Button */}
+        <Menu>
+          <MenuButton>
+            <svg
+              aria-label="Share"
+              color=""
+              fill="rgb(243, 245, 247)"
+              height="20"
+              role="img"
+              viewBox="0 0 24 24"
+              width="20"
+              cursor={"pointer"}
+            >
+              <title>Share</title>
+              <line
+                fill="none"
+                stroke="currentColor"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                x1="22"
+                x2="9.218"
+                y1="3"
+                y2="10.083"
+              ></line>
+              <polygon
+                fill="none"
+                points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
+                stroke="currentColor"
+                strokeLinejoin="round"
+                strokeWidth="2"
+              ></polygon>
+            </svg>
+          </MenuButton>
+          <Portal>
+            <MenuList bg={"gray.200"}>
+              <MenuItem
+                fontWeight={"500"}
+                color={"black"}
+                bg={"gray.200"}
+                onClick={copyURL}
+              >
+                <Flex
+                  w={"full"}
+                  justifyContent={"space-between"}
+                  alignItems={"center"}
+                >
+                  <Text>Copy Link</Text>
+                  <FaLink />
+                </Flex>
+              </MenuItem>
+            </MenuList>
+          </Portal>
+        </Menu>
       </Flex>
 
       <Flex gap={2} alignItems={"center"}>

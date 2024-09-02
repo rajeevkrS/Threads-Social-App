@@ -1,4 +1,15 @@
-import { Button, Flex, Image, Link, useColorMode } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Image,
+  Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Portal,
+  useColorMode,
+} from "@chakra-ui/react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AiFillHome } from "react-icons/ai";
 import { RxAvatar } from "react-icons/rx";
@@ -9,6 +20,7 @@ import useLogout from "../hooks/useLogout";
 import authSceenAtom from "../atoms/authAtom";
 import { BsFillChatQuoteFill } from "react-icons/bs";
 import { MdOutlineSettings } from "react-icons/md";
+import { CgDetailsMore } from "react-icons/cg";
 
 const Header = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -30,6 +42,7 @@ const Header = () => {
           as={RouterLink}
           to={"/auth"}
           onClick={() => setAuthScreen("login")}
+          fontWeight={"500"}
         >
           Login
         </Link>
@@ -49,17 +62,47 @@ const Header = () => {
             <RxAvatar size={24} />
           </Link>
 
-          <Link as={RouterLink} to={`/chat`}>
-            <BsFillChatQuoteFill size={20} />
-          </Link>
-
-          <Link as={RouterLink} to={`/settings`}>
-            <MdOutlineSettings size={20} />
-          </Link>
-
-          <Button size={"xs"} onClick={logout}>
-            <FiLogOut size={18} />
-          </Button>
+          <Menu>
+            <MenuButton>
+              <CgDetailsMore size={24} cursor={"pointer"} />
+            </MenuButton>
+            <Portal>
+              <MenuList bg={"gray.200"}>
+                <MenuItem
+                  fontWeight={"500"}
+                  color={"black"}
+                  bg={"gray.200"}
+                  as={RouterLink}
+                  to={`/chat`}
+                >
+                  <BsFillChatQuoteFill
+                    size={20}
+                    style={{ marginRight: "8px" }}
+                  />
+                  Chat
+                </MenuItem>
+                <MenuItem
+                  fontWeight={"500"}
+                  color={"black"}
+                  bg={"gray.200"}
+                  as={RouterLink}
+                  to={`/settings`}
+                >
+                  <MdOutlineSettings size={20} style={{ marginRight: "8px" }} />
+                  Settings
+                </MenuItem>
+                <MenuItem
+                  fontWeight={"500"}
+                  color={"black"}
+                  bg={"gray.200"}
+                  onClick={logout}
+                >
+                  <FiLogOut size={18} style={{ marginRight: "8px" }} />
+                  Logout
+                </MenuItem>
+              </MenuList>
+            </Portal>
+          </Menu>
         </Flex>
       )}
 
@@ -68,6 +111,7 @@ const Header = () => {
           as={RouterLink}
           to={"/auth"}
           onClick={() => setAuthScreen("signup")}
+          fontWeight={"500"}
         >
           Sign Up
         </Link>

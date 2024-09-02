@@ -11,6 +11,7 @@ import {
   Portal,
   useToast,
 } from "@chakra-ui/react";
+import { FaLink } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Link as RouterLink } from "react-router-dom";
@@ -43,18 +44,9 @@ const UserHeader = ({ user }) => {
             {user.name}
           </Text>
 
-          <Flex gap={2} alignItems={"center"}>
-            <Text fontSize={"sm"}>{user.username}</Text>
-            <Text
-              fontSize={"xs"}
-              bg={"gray.400"}
-              color={"gray.dark"}
-              px={2}
-              borderRadius={"full"}
-            >
-              thread.net
-            </Text>
-          </Flex>
+          <Text fontSize={"sm"} fontWeight={"bold"}>
+            {user.username}
+          </Text>
         </Box>
 
         <Box>
@@ -62,6 +54,7 @@ const UserHeader = ({ user }) => {
             <Avatar
               name={user.name}
               src={user.profilePic}
+              border={"1px solid gray"}
               // Responsive
               size={{
                 base: "md",
@@ -86,25 +79,9 @@ const UserHeader = ({ user }) => {
 
       <Text>{user.bio}</Text>
 
-      {/* when looking to our own profile */}
-      {currentUser?._id === user._id && (
-        <Link as={RouterLink} to="/update">
-          <Button size={"sm"}>Update Profile</Button>
-        </Link>
-      )}
-
-      {/* when looking to others profile */}
-      {currentUser?._id !== user._id && (
-        <Button size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>
-          {following ? "Unfollow" : "Follow"}
-        </Button>
-      )}
-
       <Flex w={"full"} justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
           <Text color={"gray.light"}>{user.followers.length} followers</Text>
-          <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>
-          <Link color={"gray.light"}>instagram.com</Link>
         </Flex>
 
         <Flex>
@@ -118,9 +95,21 @@ const UserHeader = ({ user }) => {
                 <CgMoreO size={24} cursor={"pointer"} />
               </MenuButton>
               <Portal>
-                <MenuList bg={"gray.dark"}>
-                  <MenuItem bg={"gray.dark"} onClick={copyURL}>
-                    Copy Link
+                <MenuList bg={"blue.200"}>
+                  <MenuItem
+                    fontWeight={"500"}
+                    color={"black"}
+                    bg={"blue.200"}
+                    onClick={copyURL}
+                  >
+                    <Flex
+                      w={"full"}
+                      justifyContent={"space-between"}
+                      alignItems={"center"}
+                    >
+                      <Text>Copy Link</Text>
+                      <FaLink />
+                    </Flex>
                   </MenuItem>
                 </MenuList>
               </Portal>
@@ -128,6 +117,22 @@ const UserHeader = ({ user }) => {
           </Box>
         </Flex>
       </Flex>
+
+      {/* when looking to our own profile */}
+      {currentUser?._id === user._id && (
+        <Link as={RouterLink} to="/update" style={{ width: "100%" }} p={2}>
+          <Button size={"sm"} w={"full"} textAlign={"center"}>
+            Update Profile
+          </Button>
+        </Link>
+      )}
+
+      {/* when looking to others profile */}
+      {currentUser?._id !== user._id && (
+        <Button size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>
+          {following ? "Unfollow" : "Follow"}
+        </Button>
+      )}
 
       <Flex w={"full"}>
         <Flex
@@ -138,17 +143,6 @@ const UserHeader = ({ user }) => {
           cursor={"pointer"}
         >
           <Text fontWeight={"bold"}>Threads</Text>
-        </Flex>
-
-        <Flex
-          flex={1}
-          borderBottom={"1px solid gray"}
-          color={"gray.light"}
-          justifyContent={"center"}
-          pb={3}
-          cursor={"pointer"}
-        >
-          <Text fontWeight={"bold"}>Replies</Text>
         </Flex>
       </Flex>
     </VStack>

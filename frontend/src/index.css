@@ -6,10 +6,6 @@
   transition: background-color 0.3 ease-in-out;
 }
 
-.icon-container:hover {
-  background-color: #1e1e1e;
-}
-
 ::-webkit-scrollbar {
   width: 7px;
 }

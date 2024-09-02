@@ -84,7 +84,7 @@ const Conversation = ({ conversation, isOnline }) => {
               : ""
           }
         >
-          {user.username} <Image src="/verified.png" w={4} h={4} ml={1} />
+          {user.username}
         </Text>
 
         <Text

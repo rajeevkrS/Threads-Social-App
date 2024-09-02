@@ -156,7 +156,7 @@ const MessageContainer = () => {
   return (
     <Flex
       flex={"70"}
-      bg={useColorModeValue("gray.200", "gray.dark")}
+      bg={useColorModeValue("gray.200", "gray.900")}
       borderRadius={"md"}
       p={2}
       flexDirection={"column"}
@@ -167,11 +167,10 @@ const MessageContainer = () => {
 
         <Text display={"flex"} alignItems={"center"}>
           {selectedConversation.username}
-          <Image src="/verified.png" w={4} h={4} ml={1} />
         </Text>
       </Flex>
 
-      <Divider borderColor="red.700" />
+      <Divider borderColor="red" />
 
       {/* Messages Contanier */}
       <Flex

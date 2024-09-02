@@ -68,7 +68,7 @@ const UserPage = () => {
       {/* User's Posts */}
       {!fetchingPosts && posts.length === 0 && (
         <Flex justifyContent={"center"} my={12}>
-          <h1>User has no posts.</h1>
+          <Text fontWeight={"500"}>User has no posts!</Text>
         </Flex>
       )}
 

@@ -27,7 +27,7 @@ const ChatPage = () => {
   const [searchConvo, setSearchConvo] = useState("");
   const [searchingUser, setSearchingUser] = useState(false);
 
-  const [conversations, setCoversations] = useRecoilState(conversationsAtom);
+  const [conversations, setConversations] = useRecoilState(conversationsAtom);
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
@@ -35,12 +35,41 @@ const ChatPage = () => {
   const showToast = useShowToast();
   const { socket, onlineUsers } = useSocket();
 
+  // Update Conversations when a new message is received
+  useEffect(() => {
+    socket?.on("newMessage", (message) => {
+      // Update the conversation list with the new message
+      setConversations((prevConvos) => {
+        const updatedConvo = prevConvos.map((convo) => {
+          if (convo._id === message.conversationId) {
+            return {
+              ...convo,
+              lastMessage: {
+                text: message.text,
+                sender: message.sender,
+              },
+            };
+          }
+          return convo;
+        });
+        return updatedConvo;
+      });
+
+      // Update the message container if the message belongs to the selected conversation
+      if (selectedConversation._id === message.conversationId) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
+    });
+
+    return () => socket?.off("newMessage");
+  }, [socket, selectedConversation, setConversations]);
+
   // listening the "messagesSeen" event
   // seen logic
   useEffect(() => {
     socket?.on("messagesSeen", ({ conversationId }) => {
       // updatin the state
-      setCoversations((prev) => {
+      setConversations((prev) => {
         const updatedConversations = prev.map((conversation) => {
           if (conversation._id === conversationId) {
             return {
@@ -58,7 +87,7 @@ const ChatPage = () => {
         return updatedConversations;
       });
     });
-  }, [socket, setCoversations]);
+  }, [socket, setConversations]);
 
   useEffect(() => {
     const getConversations = async () => {
@@ -73,7 +102,7 @@ const ChatPage = () => {
         }
 
         //
-        setCoversations(data);
+        setConversations(data);
       } catch (error) {
         showToast("Error", error.message, "error");
       } finally {
@@ -82,7 +111,7 @@ const ChatPage = () => {
     };
 
     getConversations();
-  }, [showToast, setCoversations]);
+  }, [showToast, setConversations]);
 
   // Search Conversation Handler
   const handleConvoSearch = async (e) => {
@@ -141,7 +170,7 @@ const ChatPage = () => {
       };
 
       // upating the state with appending the new mock conversation to the existing conversations array.
-      setCoversations((prevConvs) => [...prevConvs, mockConversation]);
+      setConversations((prevConvs) => [...prevConvs, mockConversation]);
     } catch (error) {
       showToast("Error", error.message, "error");
     } finally {

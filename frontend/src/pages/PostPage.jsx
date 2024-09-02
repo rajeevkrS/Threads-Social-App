@@ -14,7 +14,7 @@ import useGetUserProfile from "../hooks/useGetUserProfile";
 import { useEffect } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useNavigate, useParams } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -123,16 +123,14 @@ const PostPage = () => {
             >
               {user.username}
             </Text>
-            <Image src="/verified.png" w={4} h={4} ml={4} />
+            <Text fontSize={"xm"} w={36} ml={3} color={"gray.light"}>
+              {/* current time of the post */}
+              {format(new Date(currentPost.createdAt), "MM/dd/yyyy")}
+            </Text>
           </Flex>
         </Flex>
 
-        <Flex gap={4} alignItems={"center"}>
-          <Text fontSize={"xm"} w={36} textAlign={"right"} color={"gray.light"}>
-            {/* current time of the post */}
-            {formatDistanceToNow(new Date(currentPost.createdAt))} ago
-          </Text>
-
+        <Flex alignItems={"center"}>
           {currentUser?._id === user._id && (
             <DeleteIcon
               cursor={"pointer"}
@@ -159,16 +157,6 @@ const PostPage = () => {
       <Flex gap={3} my={3}>
         <Actions post={currentPost} />
       </Flex>
-
-      {/* <Divider my={4} /> */}
-
-      {/* <Flex justifyContent={"space-between"}>
-        <Flex gap={2} alignItems={"center"}>
-          <Text fontSize={"2xl"}>👋</Text>
-          <Text color={"gray.light"}>Get the app to like, reply and post.</Text>
-        </Flex>
-        <Button>Get</Button>
-      </Flex> */}
 
       <Divider my={4} />
 

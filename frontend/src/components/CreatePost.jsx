@@ -118,8 +118,9 @@ const CreatePost = () => {
         bottom={10}
         right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
+        border={"1px solid gray"}
         onClick={onOpen}
-        size={{ base: "sm", sm: "md" }}
+        size={{ base: "md", sm: "md" }}
       >
         <AddIcon />
       </Button>

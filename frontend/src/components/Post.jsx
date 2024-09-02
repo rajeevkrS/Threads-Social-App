@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
 import useShowToast from "../hooks/useShowToast";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
@@ -147,20 +147,13 @@ const Post = ({ post, postedBy }) => {
                 {user?.username}
               </Text>
 
-              <Image src="/verified.png" w={4} h={4} ml={1} />
+              <Text fontSize={"xm"} w={36} ml={3} color={"gray.light"}>
+                {/* current time of the post */}
+                {format(new Date(post.createdAt), "MM/dd/yyyy")}
+              </Text>
             </Flex>
 
-            <Flex gap={4} alignItems={"center"}>
-              <Text
-                fontSize={"xm"}
-                w={36}
-                textAlign={"right"}
-                color={"gray.light"}
-              >
-                {/* current time of the post */}
-                {formatDistanceToNow(new Date(post.createdAt))} ago
-              </Text>
-
+            <Flex alignItems={"center"}>
               {currentUser?._id === user._id && (
                 <DeleteIcon size={20} onClick={handleDeletePost} />
               )}
