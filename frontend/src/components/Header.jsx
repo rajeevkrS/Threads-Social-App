@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AiFillHome } from "react-icons/ai";
-import { RxAvatar } from "react-icons/rx";
+import { FaUserCircle } from "react-icons/fa";
 import userAtom from "../atoms/userAtom";
 import { Link as RouterLink } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
@@ -59,7 +59,7 @@ const Header = () => {
       {user && (
         <Flex alignItems={"center"} gap={4}>
           <Link as={RouterLink} to={`/${user.username}`}>
-            <RxAvatar size={24} />
+            <FaUserCircle size={24} />
           </Link>
 
           <Menu>
