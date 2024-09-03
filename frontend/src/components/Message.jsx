@@ -4,11 +4,20 @@ import { selectedConversationAtom } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { BsCheck2All } from "react-icons/bs";
 import { useState } from "react";
+import { format } from "date-fns";
 
 const Message = ({ ownMessage, message }) => {
   const selectedConversation = useRecoilValue(selectedConversationAtom);
   const user = useRecoilValue(userAtom);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  // Convert createdAt to a valid date object
+  const messageDate = new Date(message.createdAt);
+
+  // Format the time if the date is valid
+  const formattedTime = !isNaN(messageDate.getTime())
+    ? format(messageDate, "HH:mm")
+    : "";
 
   return (
     <>
@@ -59,11 +68,22 @@ const Message = ({ ownMessage, message }) => {
             </Flex>
           )}
 
-          <Avatar src={user.profilePic} w={"7"} h={"7"} />
+          <Flex direction={"column"} gap={2}>
+            <Avatar src={user.profilePic} w={"7"} h={"7"} />
+            <Text fontSize="sm" color="gray.500">
+              {formattedTime}
+            </Text>
+          </Flex>
         </Flex>
       ) : (
         <Flex gap={2}>
-          <Avatar src={selectedConversation.userProfilePic} w={"7"} h={"7"} />
+          <Flex direction={"column"} gap={2}>
+            <Avatar src={selectedConversation.userProfilePic} w={"7"} h={"7"} />
+
+            <Text fontSize="sm" color="gray.500">
+              {formattedTime}
+            </Text>
+          </Flex>
 
           {message.text && (
             <Text

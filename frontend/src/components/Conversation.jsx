@@ -15,7 +15,7 @@ import userAtom from "../atoms/userAtom";
 import { BsCheck2All, BsFillImageFill } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
-const Conversation = ({ conversation, isOnline }) => {
+const Conversation = ({ conversation, isOnline, handleConversationSelect }) => {
   const user = conversation.participants[0];
   const currentUser = useRecoilValue(userAtom);
   const lastMessage = conversation.lastMessage;
@@ -32,22 +32,14 @@ const Conversation = ({ conversation, isOnline }) => {
     <Flex
       gap={4}
       alignItems={"center"}
-      p={"2"}
+      p={2}
       _hover={{
         cursor: "pointer",
         bg: useColorModeValue("gray.600", "gray.dark"),
         color: "white",
       }}
       borderRadius={"md"}
-      onClick={() =>
-        setSelectedConversation({
-          _id: conversation._id,
-          userId: user._id,
-          userProfilePic: user.profilePic,
-          username: user.username,
-          mock: conversation.mock,
-        })
-      }
+      onClick={() => handleConversationSelect(conversation)}
       bg={
         selectedConversation?._id === conversation._id
           ? colorMode === "light"
@@ -87,7 +79,7 @@ const Conversation = ({ conversation, isOnline }) => {
           {user.username}
         </Text>
 
-        <Text
+        <Box
           fontSize={"xs"}
           display={"flex"}
           alignItems={"center"}
@@ -101,18 +93,30 @@ const Conversation = ({ conversation, isOnline }) => {
           }
         >
           {currentUser._id === lastMessage.sender ? (
-            // handled in ChatPage.jsx
             <Box color={lastMessage.seen ? "blue.400" : ""}>
               <BsCheck2All size={16} />
             </Box>
           ) : (
             ""
           )}
-
           {lastMessage.text.length > 10
             ? lastMessage.text.substring(0, 10) + "..."
-            : lastMessage.text || <BsFillImageFill size={16} />}
-        </Text>
+            : lastMessage.text}
+
+          {/* Show unread messages count */}
+          {conversation.unreadCount > 0 && (
+            <Box
+              bg="red.500"
+              color="white"
+              borderRadius="full"
+              px={2}
+              ml={2}
+              fontSize="xs"
+            >
+              {conversation.unreadCount}
+            </Box>
+          )}
+        </Box>
       </Stack>
     </Flex>
   );

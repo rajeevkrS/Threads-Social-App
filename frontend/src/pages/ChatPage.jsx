@@ -31,23 +31,53 @@ const ChatPage = () => {
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
+
   const currentUser = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const { socket, onlineUsers } = useSocket();
 
+  // Fetch Get Conversations API
+  useEffect(() => {
+    const getConversations = async () => {
+      try {
+        const res = await fetch("/api/messages/conversations");
+
+        const data = await res.json();
+        if (data.error) {
+          showToast("Error", data.message, "error");
+          return;
+        }
+
+        //
+        setConversations(data);
+      } catch (error) {
+        showToast("Error", error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getConversations();
+  }, [showToast, setConversations]);
+
   // Update Conversations when a new message is received
   useEffect(() => {
     socket?.on("newMessage", (message) => {
-      // Update the conversation list with the new message
       setConversations((prevConvos) => {
         const updatedConvo = prevConvos.map((convo) => {
           if (convo._id === message.conversationId) {
+            const isCurrentConversation =
+              selectedConversation._id === message.conversationId;
             return {
               ...convo,
               lastMessage: {
                 text: message.text,
                 sender: message.sender,
               },
+              unreadCount:
+                !isCurrentConversation && message.sender !== currentUser._id
+                  ? (convo.unreadCount || 0) + 1
+                  : convo.unreadCount,
             };
           }
           return convo;
@@ -62,7 +92,7 @@ const ChatPage = () => {
     });
 
     return () => socket?.off("newMessage");
-  }, [socket, selectedConversation, setConversations]);
+  }, [socket, selectedConversation, setConversations, currentUser._id]);
 
   // listening the "messagesSeen" event
   // seen logic
@@ -89,29 +119,31 @@ const ChatPage = () => {
     });
   }, [socket, setConversations]);
 
-  useEffect(() => {
-    const getConversations = async () => {
-      try {
-        // Fetch Get Conversations API
-        const res = await fetch("/api/messages/conversations");
+  const handleConversationSelect = (conversation) => {
+    const user = conversation.participants[0];
+    // Mark all messages in the selected conversation as seen if not already
+    if (selectedConversation._id !== conversation._id) {
+      socket?.emit("messagesSeen", { conversationId: conversation._id });
 
-        const data = await res.json();
-        if (data.error) {
-          showToast("Error", data.message, "error");
-          return;
-        }
+      setSelectedConversation({
+        _id: conversation._id,
+        userId: user._id,
+        userProfilePic: user.profilePic,
+        username: user.username,
+        mock: conversation.mock,
+      });
 
-        //
-        setConversations(data);
-      } catch (error) {
-        showToast("Error", error.message, "error");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getConversations();
-  }, [showToast, setConversations]);
+      // Reset unread count for the selected conversation
+      setConversations((prevConvos) => {
+        return prevConvos.map((convo) => {
+          if (convo._id === conversation._id) {
+            return { ...convo, unreadCount: 0 };
+          }
+          return convo;
+        });
+      });
+    }
+  };
 
   // Search Conversation Handler
   const handleConvoSearch = async (e) => {
@@ -264,6 +296,7 @@ const ChatPage = () => {
                   conversation.participants[0]._id
                 )}
                 conversation={conversation}
+                handleConversationSelect={handleConversationSelect}
               />
             ))}
         </Flex>
