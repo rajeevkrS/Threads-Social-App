@@ -160,9 +160,9 @@ const PostPage = () => {
 
       <Divider my={4} />
 
-      {currentPost.replies.map((reply) => (
+      {currentPost.replies.map((reply, index) => (
         <Comment
-          key={reply._id}
+          key={reply._id || index}
           reply={reply}
           lastReply={
             reply._id ===
