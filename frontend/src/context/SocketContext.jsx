@@ -19,8 +19,9 @@ export const SocketContextProvider = ({ children }) => {
 
   // useEffect initializes the socket connection whenever user._id changes.
   useEffect(() => {
-    //backend url
-    const socket = io(import.meta.env.VITE_APP_BACKEND_URL, {
+    // backend url "import.meta.env.VITE_APP_BACKEND_URL" in dev mode
+    // "/" in production mode
+    const socket = io("/", {
       // socket connection includes a query parameter with the user's ID that sends the user's ID (if it exists) to the server. This allows the server to identify which user is connecting.
       query: {
         userId: user?._id,
