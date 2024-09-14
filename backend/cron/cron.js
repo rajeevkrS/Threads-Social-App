@@ -1,4 +1,5 @@
 import cron from "cron";
+import http from "http";
 import https from "https";
 import dotenv from "dotenv";
 dotenv.config();
@@ -6,7 +7,8 @@ dotenv.config();
 const URL = process.env.FRONTEND_URL;
 
 const job = new cron.CronJob("*/14 * * * *", function () {
-  https
+  const protocol = URL.startsWith("https") ? https : http; // Choose the protocol
+  protocol
     .get(URL, (res) => {
       if (res.statusCode === 200) {
         console.log("GET request sent successfully");

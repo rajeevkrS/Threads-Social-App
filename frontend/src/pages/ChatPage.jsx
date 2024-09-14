@@ -84,11 +84,6 @@ const ChatPage = () => {
         });
         return updatedConvo;
       });
-
-      // Update the message container if the message belongs to the selected conversation
-      if (selectedConversation._id === message.conversationId) {
-        setMessages((prevMessages) => [...prevMessages, message]);
-      }
     });
 
     return () => socket?.off("newMessage");
