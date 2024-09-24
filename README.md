@@ -20,6 +20,8 @@ Threads is a full-stack social media application built using the MERN stack (Mon
 ![Static Badge](https://img.shields.io/badge/Chakra_Ui-%23319795?style=for-the-badge&logo=chakraui&logoColor=black&color=%23319795)
 &nbsp;
 ![Static Badge](https://img.shields.io/badge/Context_API-%23764ABC?style=for-the-badge)&nbsp;
+![Static Badge](https://img.shields.io/badge/recoil-black?style=for-the-badge&logo=recoil&logoColor=white)
+&nbsp;
 
 **Backend:**
 
