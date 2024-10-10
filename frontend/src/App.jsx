@@ -11,6 +11,7 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import CreatePost from "./components/CreatePost";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
+import { SocketContextProvider } from "./context/SocketContext";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -26,7 +27,15 @@ function App() {
           {/* if user cookie available, sends user to Homepage else navigated to auth route */}
           <Route
             path="/"
-            element={user ? <HomePage /> : <Navigate to={"/auth"} />}
+            element={
+              user ? (
+                <SocketContextProvider>
+                  <HomePage />
+                </SocketContextProvider>
+              ) : (
+                <Navigate to={"/auth"} />
+              )
+            }
           />
 
           {/* if user cookie not available, sends user to AuthPage else navigated to home route */}

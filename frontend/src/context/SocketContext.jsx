@@ -19,26 +19,28 @@ export const SocketContextProvider = ({ children }) => {
 
   // useEffect initializes the socket connection whenever user._id changes.
   useEffect(() => {
-    // backend url "import.meta.env.VITE_APP_BACKEND_URL" in dev mode
-    // "/" in production mode
-    const socket = io("/", {
-      // socket connection includes a query parameter with the user's ID that sends the user's ID (if it exists) to the server. This allows the server to identify which user is connecting.
-      query: {
-        userId: user?._id,
-      },
-    });
+    if (user?._id) {
+      // backend url "import.meta.env.VITE_APP_BACKEND_URL" in dev mode
+      // "/" in production mode
+      const socket = io("/", {
+        // socket connection includes a query parameter with the user's ID that sends the user's ID (if it exists) to the server. This allows the server to identify which user is connecting.
+        query: {
+          userId: user?._id,
+        },
+      });
 
-    // storing the socket instance in the state, it can be accessed and used throughout the component.
-    setSocket(socket);
+      // storing the socket instance in the state, it can be accessed and used throughout the component.
+      setSocket(socket);
 
-    //This sets up an event listener on the socket to listen for the getOnlineUsers event emitted by the server.
-    // When the getOnlineUsers event is received, the users parameter (which contains the list of online users) is used to update the onlineUsers state.
-    socket.on("getOnlineUsers", (users) => {
-      setOnlineUsers(users);
-    });
+      //This sets up an event listener on the socket to listen for the getOnlineUsers event emitted by the server.
+      // When the getOnlineUsers event is received, the users parameter (which contains the list of online users) is used to update the onlineUsers state.
+      socket.on("getOnlineUsers", (users) => {
+        setOnlineUsers(users);
+      });
 
-    // Cleanup function to close socket connection on unmount
-    return () => socket && socket.close();
+      // Cleanup function to close socket connection on unmount
+      return () => socket && socket.close();
+    }
   }, [user?._id]);
 
   // console.log("online users", onlineUsers);
