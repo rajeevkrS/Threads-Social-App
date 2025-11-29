@@ -1,5 +1,6 @@
 // import path from "path";
 import express from "express";
+import cors from "cors";
 import { connectDB } from "./db/connectDB.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
@@ -35,6 +36,13 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 // To get the cookie from the req and set the cookie inside res .
 app.use(cookieParser());
+// CORS Middleware
+app.use(
+  cors({
+    origin: [process.env.FRONTEND_URL, "http://localhost:5000"],
+    credentials: true,
+  })
+);
 
 //Routes
 app.use("/api/users", userRoutes);
