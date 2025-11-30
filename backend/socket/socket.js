@@ -3,8 +3,6 @@ import http from "http";
 import express from "express";
 import Message from "../models/messageModel.js";
 import Conversation from "../models/conversationModel.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -13,7 +11,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   // Configures CORS (Cross-Origin Resource Sharing) to allow requests from the specified origin and only allows GET and POST methods.
   cors: {
-    origin: process.env.FRONTEND_URL, // frontend url
+    origin: "http://localhost:3000", // frontend url
     methods: ["GET", "POST"],
   },
 });
