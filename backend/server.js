@@ -1,6 +1,5 @@
-// import path from "path";
+import path from "path";
 import express from "express";
-import cors from "cors";
 import { connectDB } from "./db/connectDB.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
@@ -20,7 +19,7 @@ connectDB();
 
 const PORT = process.env.PORT || 5000;
 
-// const __dirname = path.resolve();
+const __dirname = path.resolve();
 
 // cloudinary configuration
 cloudinary.config({
@@ -29,41 +28,34 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Middlewares:
+// MIDDLEWARES:
 //To parse JSON data in the req.body- any data upto 50mb
 app.use(express.json({ limit: "50mb" }));
 // To parse form data in the req.body
 app.use(express.urlencoded({ extended: true }));
 // To get the cookie from the req and set the cookie inside res .
 app.use(cookieParser());
-// CORS Middleware
-app.use(
-  cors({
-    origin: [process.env.FRONTEND_URL, "http://localhost:5000"],
-    credentials: true,
-  })
-);
 
 //Routes
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
 
-app.get("/", (req, res) => {
-  res.send("API Working");
-});
+// app.get("/", (req, res) => {
+//   res.send("API Working");
+// });
 
 // Merge- http://localhost:5000 => backend + frontend
 // Serve static assets only if in production
-// if (process.env.NODE_ENV == "production") {
-//   // run the middleware
-//   app.use(express.static(path.join(__dirname, "/frontend/dist")));
+if (process.env.NODE_ENV == "production") {
+  // static folder for frontend
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-//   // react app
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-//   });
-// }
+  // handle SPA routing, return index.html for all requests to frontend
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
