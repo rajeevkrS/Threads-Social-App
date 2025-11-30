@@ -22,7 +22,7 @@ export const SocketContextProvider = ({ children }) => {
     if (user?._id) {
       // backend url "import.meta.env.VITE_APP_BACKEND_URL" in prod mode
       // "/" in dev mode
-      const socket = io("/", {
+      const socket = io(import.meta.env.VITE_APP_BACKEND_URL, {
         // socket connection includes a query parameter with the user's ID that sends the user's ID (if it exists) to the server. This allows the server to identify which user is connecting.
         query: {
           userId: user?._id,
