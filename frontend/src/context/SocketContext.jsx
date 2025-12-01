@@ -11,7 +11,7 @@ export const useSocket = () => {
   return useContext(SocketContext);
 };
 
-// Created a provider around it
+// Created a provider around it to provide the socket instance to its children components.
 export const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const user = useRecoilValue(userAtom);
