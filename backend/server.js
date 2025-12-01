@@ -48,10 +48,10 @@ app.use("/api/messages", messageRoutes);
 // Merge- http://localhost:5000 => backend + frontend
 // Serve static assets only if in production
 if (process.env.NODE_ENV == "production") {
-  // static folder for frontend
+  // Serve static files from the React frontend app
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-  // handle SPA routing, return index.html for all requests to frontend
+  // react router - so basically for any route other than api route it will serve the index.html file
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
